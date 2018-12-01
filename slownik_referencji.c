@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #define MAX_WORD 30
 
@@ -17,11 +16,11 @@ typedef struct Counter Counter;
 
 //WordsList: Wezel listy przechowujacej informacje o danym slowie.
 struct WordsList{
-    char word[ MAX_WORD + 1 ]; //Tablica zawierajaca w sobie dane slowo
-    int first_line; //Pierwsze wystapienie danego slowa.
-    int number; //Ilosc wystapien danego slowa
-    Counter* first_counter; //Wskanik na pierwszy element listy Counter tego slowa.
-    struct WordsList* next; //Wskaznik na kolejny element listy.
+    char word[ MAX_WORD + 1 ];                                          //Tablica zawierajaca w sobie dane slowo
+    int first_line;                                                     //Pierwsze wystapienie danego slowa.
+    int number;                                                         //Ilosc wystapien danego slowa
+    Counter* first_counter;                                             //Wskanik na pierwszy element listy Counter tego slowa.
+    struct WordsList* next;                                             //Wskaznik na kolejny element listy.
 };
 typedef struct WordsList WordsList;
 
