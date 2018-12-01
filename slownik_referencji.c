@@ -1,4 +1,4 @@
-/* Autor: Rafal Uzarowicz, 300282
+/* Autor: Rafal Uzarowicz
  * Zawartosc: Program tworzacy slownik referencji slow w tekscie podanym na standardowym wejsciu.*/
 
 #include <stdio.h>
@@ -42,7 +42,7 @@ Counter* isThereCounter( int line, Counter* first );
 Counter* addCounter( int line, Counter* first, WordsList* word );
 
 /* isLetter: Funkcja przujmuje liczbe typu int, a nastepnie sprawdza czy ta liczba w swojej reprezentacji
- * char jest albo litera a-z albo A-Z albo cyfrπ 0-9. Jesli tak jest to zwraca 1, a jesli nie to 0. */
+ * char jest albo litera a-z albo A-Z albo cyfr≈° 0-9. Jesli tak jest to zwraca 1, a jesli nie to 0. */
 int isLetter( int c );
 
 /* findMaxNumber: Funkcja przyjuje wkaznik na poczatek listy WordsList, a nastepnie przeszukujac liste
