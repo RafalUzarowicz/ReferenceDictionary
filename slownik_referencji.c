@@ -1,11 +1,9 @@
-/* Autor: Rafal Uzarowicz
+/* Autor: Rafal Uzarowicz, 300282
  * Zawartosc: Program tworzacy slownik referencji slow w tekscie podanym na standardowym wejsciu.*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MAX_WORD 30
 
 //Counter: Wezel listy przechowujacej kolejne wystapienia danego slowa.
 struct Counter{
@@ -16,11 +14,11 @@ typedef struct Counter Counter;
 
 //WordsList: Wezel listy przechowujacej informacje o danym slowie.
 struct WordsList{
-    char word[ MAX_WORD + 1 ];                                          //Tablica zawierajaca w sobie dane slowo
-    int first_line;                                                     //Pierwsze wystapienie danego slowa.
-    int number;                                                         //Ilosc wystapien danego slowa
-    Counter* first_counter;                                             //Wskanik na pierwszy element listy Counter tego slowa.
-    struct WordsList* next;                                             //Wskaznik na kolejny element listy.
+    char* word; //Tablica zawierajaca w sobie dane slowo
+    int first_line; //Pierwsze wystapienie danego slowa.
+    int number; //Ilosc wystapien danego slowa
+    Counter* first_counter; //Wskanik na pierwszy element listy Counter tego slowa.
+    struct WordsList* next; //Wskaznik na kolejny element listy.
 };
 typedef struct WordsList WordsList;
 
@@ -41,7 +39,7 @@ Counter* isThereCounter( int line, Counter* first );
 Counter* addCounter( int line, Counter* first, WordsList* word );
 
 /* isLetter: Funkcja przujmuje liczbe typu int, a nastepnie sprawdza czy ta liczba w swojej reprezentacji
- * char jest albo litera a-z albo A-Z albo cyfrš 0-9. Jesli tak jest to zwraca 1, a jesli nie to 0. */
+ * char jest albo litera a-z albo A-Z albo cyfrą 0-9. Jesli tak jest to zwraca 1, a jesli nie to 0. */
 int isLetter( int c );
 
 /* findMaxNumber: Funkcja przyjuje wkaznik na poczatek listy WordsList, a nastepnie przeszukujac liste
@@ -52,6 +50,9 @@ int findMaxNumber( WordsList* head );
 /* abcOrder: Funkcja przyjmuje dwa slowa, a nastepnie zwraca 1 jesli pierwsze slowo jest wyzej w
  * kolejnosci alfabetycznej lub 0 jesli pierwsze slowo jest nizej w kolejnosci alfabetycznej. */
 int abcOrder( char first[], char second[] );
+
+/* maximumLength: Funkcja przyjmuje dwie liczby typu int i zwraca wieksza z nich. */
+int maximumLength( int first, int second);
 
 /* clearTab: Funkcja przyjmuje dowolna tablice, a nastepnie zeruje wszystkie wartosci w podanej tablicy. */
 void clearTab( char tab[] );
@@ -76,18 +77,32 @@ void nodeFree( Counter* node );
 
 
 int main (){
-    WordsList* head =NULL;                                              //Zmienna wskazujaca poczatek listy slow.
-    char word[ MAX_WORD + 1 ];                                          //Tablica do przechowywania slowa do slownika.
-    clearTab( word );                                                   //Czysczenie tablicy do slowa.
-    int c = 0;                                                          //Zmienna do przechowywania aktualnie rozpatrywanego znaku z wejscia.
-    int line=1;                                                         //Zmienna do przechowywania aktualnie rozpatrywanej linijki.
-    while( EOF != ( c = getchar() ) ){
+    WordsList* head = NULL;                                              //Zmienna wskazujaca poczatek listy slow.
+    int wordLength = 2;
+    char* word = malloc(sizeof(char));
+    if( !word ){
+        puts("Brak pamieci.");
+        return 1;
+    }
+    char c = 0;                                                          //Zmienna do przechowywania aktualnie rozpatrywanego znaku z wejscia.
+    int line = 1;                                                         //Zmienna do przechowywania aktualnie rozpatrywanej linijki.
+    while( '0' != ( c = getchar() ) ){
         if( isLetter( c ) ){                                            // Przymowana litera spelnia wymagania potrzebne do wpisania do tablicy slowa.
-            for( int j = 0 ; isLetter( c ) && j < MAX_WORD ; ++j ){     //Zbieranie znakow do utworzenia slowa.
+
+            int j = 0;
+            while( isLetter( c ) ){
+                word = realloc( word, wordLength*sizeof( char ));
+                if( !word ){
+                    puts("Brak pamieci.");
+                    return 1;
+                }
                 word[ j ] = ( char ) c;
-                word[ j + 1 ] = '\0';
+                wordLength++;
                 c = getchar();
+                j++;
             }
+            word[j+1]='\0';
+            j=0;
             WordsList* current = NULL;                                  //current - zmienna pomocnicza pokazujaca na ktorym elemencie listy jestesmy.
             if( NULL != ( current = isThereWord( word, head ) ) ){      //Podane slowo jest juz w slowniku.
                 if( NULL == current->first_counter ) {                  //Slowo nie ma listy Counter, wystapilo tylko w jednej linii.
@@ -101,7 +116,13 @@ int main (){
                 addWord( word, line, &head );                           //Dodanie nowego slowa do slownika w odpowiednim miejscu.
             }
         }
-        clearTab( word );                                               //Wyczyszczenie tablicy do slowa.
+        wordLength = 2;
+        free(word);
+        word=malloc(sizeof(char));
+        if( !word ){
+            puts("Brak pamieci.");
+            return 1;
+        }
         if( c == '\n' ){
             ++line;                                                     //Przejscie do kolejnej linijki w przypadku wystapienia znaku nowej linii.
         }
@@ -161,7 +182,8 @@ Counter* addCounter( int line, Counter* first, WordsList* word ){
 }
 
 int abcOrder( char first[], char second[] ){
-    for( int i = 0; i <= strlen( first ) ; ++i ){                       //Petla sprawdzajaca po kolei kolejne litery.
+    int maxLen = maximumLength( strlen( first ), strlen( second ) );
+    for( int i = 0; i <= maxLen ; ++i ){ //Petla sprawdzajaca po kolei kolejne litery.
         if( first[ i ] < second[ i ] ){
             return 1;                                                   // Slowo first jest wyzej alfabetycznie.
         }else if(first[i]>second[i]){
@@ -169,6 +191,10 @@ int abcOrder( char first[], char second[] ){
         }
     }
     return 0;                                                           //Slowo first jest nizej alfabetycznie.
+}
+
+int maximumLength( int first, int second){
+    return ( first > second ? first : second );
 }
 
 int isLetter( int c ) {
@@ -197,7 +223,7 @@ void addWord( char word[], int line, WordsList** head ){
         puts( "Brak pamieci." );
         exit( EXIT_FAILURE );
     }
-    strcpy( newWord->word, word );                                      //Ustawiamy odpowiednie wartosci w nowym wezle na domyslne.
+    newWord->word = word;                                    //Ustawiamy odpowiednie wartosci w nowym wezle na domyslne.
     newWord->first_line = line;
     newWord->number = 1;
     newWord->first_counter = NULL;
@@ -215,8 +241,8 @@ void addWord( char word[], int line, WordsList** head ){
                 next_word = next_word->next;                            //Nastepny element staje sie kolejnym wzgledem siebie.
             }
             if ( NULL == next_word ) {                                  //Nie ma nastepnego elementu listy.
-                    prev_word->next = newWord;                          //Poprzedni element wskazuje na nowe slowo.
-                    newWord->next = NULL;                               //Nowy element listy staje sie ostatnim.
+                prev_word->next = newWord;                          //Poprzedni element wskazuje na nowe slowo.
+                newWord->next = NULL;                               //Nowy element listy staje sie ostatnim.
             } else {                                                    //Istnieja kolejne elementy listy.
                 while ( NULL != next_word && !abcOrder( newWord->word, next_word->word ) ){
                     //Szukamy miejsca w liscie dla nowego wezla.
@@ -266,6 +292,7 @@ void listFree( WordsList* Word ){
         prev = Word;                                                    //Ustawiamy wezel do wyczyszczenia.
         nodeFree( Word->first_counter );                                //Czyscimy liste ktora jest wskazywana w naszej liscie.
         Word = Word->next;                                              //Przechodzimy do kolejnego wezla.
+        free( prev->word );
         free( prev );                                                   //Czyscimy aktualny wezel.
     }
 }
@@ -278,3 +305,4 @@ void nodeFree( Counter* node ){
         free( prev );                                                   //Czyscimy aktualnie sprawdzany wezek.
     }
 }
+
