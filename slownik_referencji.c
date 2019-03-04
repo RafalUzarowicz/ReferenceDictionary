@@ -86,7 +86,7 @@ int main (){
     }
     char c = 0;                                                          //Zmienna do przechowywania aktualnie rozpatrywanego znaku z wejscia.
     int line = 1;                                                         //Zmienna do przechowywania aktualnie rozpatrywanej linijki.
-    while( '0' != ( c = getchar() ) ){
+    while( EOF != ( c = getchar() ) ){
         if( isLetter( c ) ){                                            // Przymowana litera spelnia wymagania potrzebne do wpisania do tablicy slowa.
 
             int j = 0;
